@@ -1,0 +1,10 @@
+/*
+Override css display value of window control from https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/tabs_on_bottom.css to hide it totally.
+*/
+#toolbar-menubar[autohide="true"] > .titlebar-buttonbox-container,
+#TabsToolbar > .titlebar-buttonbox-container {
+  display: none !important;;
+}
+:root:not([chromehidden~="menubar"], [sizemode="fullscreen"]) #toolbar-menubar:not([autohide="true"]) + #TabsToolbar > .titlebar-buttonbox-container {
+  display: none !important;
+}
