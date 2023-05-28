@@ -7,3 +7,6 @@
 [submodule "src/submodules/userChrome.js"]
 	path = src/submodules/userChrome.js
 	url = https://github.com/alice0775/userChrome.js.git
+[submodule "src/submodules/fx-autoconfig"]
+	path = src/submodules/fx-autoconfig
+	url = https://github.com/MrOtherGuy/fx-autoconfig.git
