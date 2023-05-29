@@ -4,7 +4,9 @@ const path = require('path');
 const pathToSubs = '../submodules/';
 const pathToMine = '../js/';
 
-const theirFiles = [].map(file => path.join(__dirname, pathToSubs + file));
+const theirFiles = [
+  'userChrome.js/113/verticalTabLiteforFx.uc.js'
+].map(file => path.join(__dirname, pathToSubs + file));
 
 const myFiles = [
   'urlbar-show-domain.uc.js'

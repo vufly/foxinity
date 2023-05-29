@@ -1,0 +1,12 @@
+/* Bookmarks toolbar to be below tabs */
+#PersonalToolbar{
+  -moz-box-ordinal-group: 2;
+  order: 2;
+}
+
+/* Swap colors of toolbars */
+.browser-toolbar {
+  background: var(--toolbar-bgcolor) !important;
+  color: var(--toolbar-color) !important;
+}
+
