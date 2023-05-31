@@ -2,6 +2,7 @@
 // @name            URL bar show domain
 // @author          vufly
 // @description     Show only domain in the URL bar input field
+// @version         2023-05-31 23:00  Strip out www.
 // @version         2023-05-29 02:30  Initial
 // ==/UserScript==
 (function () {
@@ -35,7 +36,10 @@
     function replaceUrlByDomain() {
       const urlMetadata = urlbarValueFormater._getUrlMetaData();
       if (urlMetadata) {
-        const domain = urlMetadata.domain;
+        let domain = urlMetadata.domain;
+        if (domain.startsWith("www.")) {
+          domain = domain.slice(4);
+        }
         gURLBar.inputField.value = domain;
       }
     }
