@@ -5,11 +5,13 @@ const pathToSubs = '../submodules/';
 const pathToMine = '../js/';
 
 const theirFiles = [
-  'userChrome.js/113/verticalTabLiteforFx.uc.js'
+  // 'userChrome.js/113/verticalTabLiteforFx.uc.js'
 ].map(file => path.join(__dirname, pathToSubs + file));
 
 const myFiles = [
-  'urlbar-show-domain.uc.js'
+  'urlbar-show-domain.uc.js',
+  'vertical-tab-foxinity.uc.js',
+  'sidebar-easy-switch.uc.js'
 ].map(file => path.join(__dirname, pathToMine + file));
 
 const destinationDirectory = './profile/chrome/JS';
