@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-06-08 02:00  Dynamic sidebar minWidth
 // @version         2023-06-01 22:30  Collapse/Expand sidebar
 // @version         2023-05-31 18:30  Initial
 // ==/UserScript==
@@ -38,7 +39,6 @@
 
     #sidebar-box {
       max-width: 99vw !important;
-      min-width: ${DEFAULT.SIDEBAR_MIN_WIDTH}px !important;
     }
 
     #sidebar-box[sb-collapsed] ~ #sidebar-splitter {
@@ -237,9 +237,6 @@
     SidebarUI._box.setAttribute('orient', 'horizontal');
     SidebarUI._header.setAttribute('orient', 'vertical');
 
-    //Collapse sidebar
-    SidebarUI.width = DEFAULT.SIDEBAR_WIDTH;
-
     //Create collapse toolbarbutton
     const toolbarbutton = document.createXULElement('toolbarbutton');
     toolbarbutton.setAttribute('id', 'sidebar-collapse');
@@ -260,7 +257,8 @@
     function collapse() {
       var width = parseInt(SidebarUI._box.style.width);
       SidebarUI._box.setAttribute('width', width);
-      SidebarUI._box.style.width = '43px';
+      
+      SidebarUI._box.style.width = SidebarUI._header.getBoundingClientRect().width + 'px';
       SidebarUI._box.setAttribute('sb-collapsed', 'true');
     }
 
@@ -272,8 +270,9 @@
 
     function setWidth(width) {
       SidebarUI._box.setAttribute('width', width);
+      
       if (SidebarUI._box.getAttribute('sb-collapsed'))
-        SidebarUI._box.style.width = 43 + 'px';
+        SidebarUI._box.style.width = SidebarUI._header.getBoundingClientRect().width + 'px';
       else
         SidebarUI._box.style.width = width + 'px';
     }
@@ -303,9 +302,11 @@
     }
 
     const readPref = pref => observe(prefSvc, "nsPref:read", pref);
+
     // When new window load, try to read sidebar states from last window
     SessionStore.promiseInitialized.then(() => {
       if (window.closed) return;
+      SidebarUI._box.style.minWidth = SidebarUI._header.getBoundingClientRect().width + 'px';
       const sourceWindow = window.opener;
         if (
           sourceWindow &&
