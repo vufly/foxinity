@@ -30,29 +30,29 @@
 
   function init() {
     var css = `
-    #sidebar-switcher-target,
-    #sidebar-throbber,
-    #sidebar-spacer,
-    #sidebar-close {
-      display: none !important;
+    :root[foxinity] #sidebar-switcher-target,
+    :root[foxinity] #sidebar-throbber,
+    :root[foxinity] #sidebar-spacer,
+    :root[foxinity] #sidebar-close {
+      display: none;
     }
 
-    #sidebar-box {
-      max-width: 99vw !important;
+    :root[foxinity] #sidebar-box {
+      max-width: 99vw;
     }
 
-    #sidebar-box[sb-collapsed] ~ #sidebar-splitter {
-      display: none !important;
+    :root[foxinity] #sidebar-box[sb-collapsed] ~ #sidebar-splitter {
+      display: none;
     }
 
     #sidebar-box.animating {
       transition: width 0.2s ease-out;
     }
 
-    #sidebar-header {
-      font-size: 1em !important;
-      padding: 8px 5px !important;
-      background: var(--toolbar-bgcolor) !important;
+    :root[foxinity] #sidebar-header {
+      font-size: 1em;
+      padding: 8px 5px;
+      background: var(--toolbar-bgcolor);
     }
 
     #sidebar-box[positionend="true"] #sidebar-header {
@@ -79,13 +79,13 @@
       fill: currentColor;
     }
 
-    #sidebarMenu-popup #sidebar-collapse label,
-    #sidebarMenu-popup #sidebar-switcher-bookmarks label,
-    #sidebarMenu-popup #sidebar-switcher-history label,
-    #sidebarMenu-popup #sidebar-switcher-tabs label,
-    #sidebarMenu-popup #sidebar-reverse-position label,
-    #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] label  {
-      padding-inline-start: 8px !important;
+    :root[foxinity] #sidebarMenu-popup #sidebar-collapse label,
+    :root[foxinity] #sidebarMenu-popup #sidebar-switcher-bookmarks label,
+    :root[foxinity] #sidebarMenu-popup #sidebar-switcher-history label,
+    :root[foxinity] #sidebarMenu-popup #sidebar-switcher-tabs label,
+    :root[foxinity] #sidebarMenu-popup #sidebar-reverse-position label,
+    :root[foxinity] #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] label  {
+      padding-inline-start: 8px;
     }
 
     #sidebar-box #sidebar-collapse image {
@@ -124,14 +124,14 @@
       list-style-image: url(chrome://global/skin/icons/close.svg);
     }
 
-    #sidebarMenu-popup toolbarbutton > label.toolbarbutton-text {
-      display: none !important;
+    :root[foxinity] #sidebarMenu-popup toolbarbutton > label.toolbarbutton-text {
+      display: none;
     }
 
-    #sidebarMenu-popup toolbarbutton {
-      margin: 0 !important;
-      min-width: unset !important;
-      justify-content: center !important;
+    :root[foxinity] #sidebarMenu-popup toolbarbutton {
+      margin: 0;
+      min-width: unset;
+      justify-content: center;
     }
 
     #sidebarMenu-popup toolbarbutton.active {
@@ -142,15 +142,17 @@
       background-size: auto 100%, auto 100%, auto auto;
     }
 
-    #sidebarMenu-popup toolbarseparator {
-      -moz-appearance: none !important;
+    :root[foxinity] #sidebarMenu-popup toolbarseparator {
+      -moz-appearance: none;
       border-top: solid 1px color-mix(in srgb, currentColor 25%, transparent);
     }
     `
     var sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
     var uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
-    if(!sss.sheetRegistered(uri, sss.AGENT_SHEET))
-      sss.loadAndRegisterSheet(uri, sss.AGENT_SHEET);
+    if(!sss.sheetRegistered(uri, sss.AUTHOR_SHEET))
+      sss.loadAndRegisterSheet(uri, sss.AUTHOR_SHEET);
+
+    document.documentElement.setAttribute('foxinity', true);
 
     // Move all children from the original popup to the box
     const switcherBox = document.createXULElement('box');
