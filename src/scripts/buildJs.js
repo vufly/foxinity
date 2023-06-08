@@ -10,7 +10,7 @@ const theirFiles = [
 
 const myFiles = [
   'urlbar-show-domain.uc.js',
-  'vertical-tab-foxinity.uc.js',
+  'foxinity-vertical-tabs.uc.js',
   'sidebar-easy-switch.uc.js'
 ].map(file => path.join(__dirname, pathToMine + file));
 

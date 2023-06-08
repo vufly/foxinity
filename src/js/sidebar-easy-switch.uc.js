@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-06-08 03:00  Change CSS config to avoid using !important
 // @version         2023-06-08 02:00  Dynamic sidebar minWidth
 // @version         2023-06-01 22:30  Collapse/Expand sidebar
 // @version         2023-05-31 18:30  Initial
@@ -336,8 +337,8 @@
 
     function observe(subject, topic, data) {
       switch (topic) {
-        case "nsPref:changed":
-        case "nsPref:read":
+        case 'nsPref:changed':
+        case 'nsPref:read':
           _onPrefChanged(subject, data);
           break;
       }
