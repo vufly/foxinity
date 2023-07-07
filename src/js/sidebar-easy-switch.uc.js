@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-07-07 18:30  Breaking change in Firefox 116
 // @version         2023-06-08 03:00  Change CSS config to avoid using !important
 // @version         2023-06-08 02:00  Dynamic sidebar minWidth
 // @version         2023-06-01 22:30  Collapse/Expand sidebar
@@ -70,23 +71,34 @@
       height: 100%;
     }
 
+    :root[foxinity] #sidebarMenu-popup > menuitem {
+      min-width: unset;
+      padding: var(--arrowpanel-menuitem-padding);
+      border-radius: var(--arrowpanel-menuitem-border-radius);
+    }
+
+    :root[foxinity] #sidebarMenu-popup > menuitem:not([disabled]):hover {
+      color: inherit;
+      background-color: var(--panel-item-hover-bgcolor);
+    }
+
+    :root[foxinity] #sidebarMenu-popup .menu-iconic > .menu-iconic-left,
+    :root[foxinity] #sidebarMenu-popup .menuitem-iconic > .menu-iconic-left {
+      padding-top: unset;
+      margin-inline-end: unset !important;
+    }
+
+    :root[foxinity] #sidebarMenu-popup > menuseparator {
+      padding-inline: unset !important;
+    }
+
     #sidebarMenu-popup #sidebar-collapse image,
     #sidebarMenu-popup #sidebar-switcher-bookmarks image,
     #sidebarMenu-popup #sidebar-switcher-history image,
     #sidebarMenu-popup #sidebar-switcher-tabs image,
     #sidebarMenu-popup #sidebar-reverse-position image,
     #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] image {
-      -moz-context-properties: fill;
       fill: currentColor;
-    }
-
-    :root[foxinity] #sidebarMenu-popup #sidebar-collapse label,
-    :root[foxinity] #sidebarMenu-popup #sidebar-switcher-bookmarks label,
-    :root[foxinity] #sidebarMenu-popup #sidebar-switcher-history label,
-    :root[foxinity] #sidebarMenu-popup #sidebar-switcher-tabs label,
-    :root[foxinity] #sidebarMenu-popup #sidebar-reverse-position label,
-    :root[foxinity] #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] label  {
-      padding-inline-start: 8px;
     }
 
     #sidebar-box #sidebar-collapse image {
@@ -105,24 +117,35 @@
       list-style-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,22H22V2H20V11H5.83L11.33,5.5L9.92,4.08L2,12L9.92,19.92L11.33,18.5L5.83,13H20V22Z" fill="context-fill" fill-opacity="context-fill-opacity"/></svg>');
     }
 
-    #sidebarMenu-popup #sidebar-switcher-bookmarks image {
-      list-style-image: url(chrome://browser/skin/bookmark.svg);
+    #sidebarMenu-popup #sidebar-switcher-bookmarks {
+      --webextension-menuitem-image: url(chrome://browser/skin/bookmark.svg);
+      --webextension-menuitem-image-2x: url(chrome://browser/skin/bookmark.svg);
     }
 
-    #sidebarMenu-popup #sidebar-switcher-history image {
-      list-style-image: url(chrome://browser/skin/history.svg);
+    #sidebarMenu-popup #sidebar-switcher-history {
+      --webextension-menuitem-image: url(chrome://browser/skin/history.svg);
+      --webextension-menuitem-image-2x: url(chrome://browser/skin/history.svg);
     }
 
-    #sidebarMenu-popup #sidebar-switcher-tabs image {
-      list-style-image: url(chrome://browser/skin/synced-tabs.svg);
+    #sidebarMenu-popup #sidebar-switcher-tabs {
+      --webextension-menuitem-image: url(chrome://browser/skin/synced-tabs.svg);
+      --webextension-menuitem-image-2x: url(chrome://browser/skin/synced-tabs.svg);
     }
 
-    #sidebarMenu-popup #sidebar-reverse-position image {
-      list-style-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 20 18"><path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" fill="currentColor" fill-opacity="var(--context-fill-opacity)"/></svg>');
+    #sidebarMenu-popup #sidebar-reverse-position {
+      --webextension-menuitem-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 20 18"><path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" fill="currentColor" fill-opacity="var(--context-fill-opacity)"/></svg>');
+      --webextension-menuitem-image-2x: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 20 18"><path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" fill="currentColor" fill-opacity="var(--context-fill-opacity)"/></svg>');
     }
 
-    #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] image {
-      list-style-image: url(chrome://global/skin/icons/close.svg);
+    #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] {
+      --webextension-menuitem-image: url(chrome://global/skin/icons/close.svg);
+      --webextension-menuitem-image-2x: url(chrome://global/skin/icons/close.svg);
+    }
+
+    :root[foxinity] #sidebarMenu-popup menuitem > label.menu-text,
+    :root[foxinity] #sidebarMenu-popup menuitem > label.menu-iconic-text,
+    :root[foxinity] #sidebarMenu-popup menuitem > hbox.menu-accel-container {
+      display: none;
     }
 
     :root[foxinity] #sidebarMenu-popup toolbarbutton > label.toolbarbutton-text {
@@ -135,7 +158,7 @@
       justify-content: center;
     }
 
-    #sidebarMenu-popup toolbarbutton.active {
+    #sidebarMenu-popup menuitem.active {
       box-shadow: 0 0 4px rgba(0,0,0,.4);
       background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent), var(--lwt-selected-tab-background-color, transparent)), linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image, none);
       background-position: 0 0, 0 0, right top;
@@ -163,6 +186,21 @@
       if (child.tagName.toLowerCase() === 'toolbarbutton') {
         setTimeout(() => child.tooltipText = child.getAttribute('label'), 500);
       }
+      setTimeout(() => {
+        if (child.tagName.toLowerCase() === 'menuitem' && child.firstChild?.tagName.toLowerCase() !== 'hbox') {
+          const hbox = document.createXULElement('hbox');
+          hbox.classList.add('menu-iconic-left');
+          hbox.setAttribute('align', 'center');
+          hbox.setAttribute('pack', 'center');
+          hbox.setAttribute('aria-hidden', true);
+
+          const image = document.createXULElement('image');
+          image.classList.add('menu-iconic-icon');
+          hbox.append(image);
+          child.insertBefore(hbox, child.firstChild);
+          child.classList.add('menuitem-iconic', 'webextension-menuitem');
+        }
+      }, 500);
       switcherBox.append(child);
     }
 
@@ -224,7 +262,8 @@
     }
 
     function toggleActive(commandId) {
-      Array.from(SidebarUI._switcherPanel.querySelectorAll('toolbarbutton[id]'))
+      console.log(commandId);
+      Array.from(SidebarUI._switcherPanel.querySelectorAll('menuitem[id]'))
         .forEach(button => {
           button.classList.remove('active');
           if (button.getAttribute('oncommand')?.includes(commandId))
