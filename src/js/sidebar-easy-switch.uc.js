@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-07-09 02:00  Fix the SVG fill in context menu problem. Must update about:config
 // @version         2023-07-09 01:00  Workaround for menuitem background style in MacOS
 // @version         2023-07-07 18:30  Breaking change in Firefox 116
 // @version         2023-06-08 03:00  Change CSS config to avoid using !important
@@ -122,15 +123,6 @@
       margin-inline-end: unset;
     }
 
-    #sidebarMenu-popup #sidebar-collapse image,
-    #sidebarMenu-popup #sidebar-switcher-bookmarks image,
-    #sidebarMenu-popup #sidebar-switcher-history image,
-    #sidebarMenu-popup #sidebar-switcher-tabs image,
-    #sidebarMenu-popup #sidebar-reverse-position image,
-    #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] image {
-      fill: currentColor;
-    }
-
     #sidebar-box #sidebar-collapse image {
       list-style-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.92,19.92L4,12L11.92,4.08L13.33,5.5L7.83,11H22V13H7.83L13.34,18.5L11.92,19.92M4,12V2H2V22H4V12Z" fill="context-fill" fill-opacity="context-fill-opacity"/></svg>');
     }
@@ -186,6 +178,11 @@
       margin: 0;
       min-width: unset;
       justify-content: center;
+    }
+
+    :root[foxinity] #sidebarMenu-popup image {
+      -moz-context-properties: fill;
+      fill: currentColor;
     }
 
     :root[foxinity] #sidebarMenu-popup toolbarseparator {
