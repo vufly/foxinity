@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-07-09 01:00  Workaround for menuitem background style in MacOS
 // @version         2023-07-07 18:30  Breaking change in Firefox 116
 // @version         2023-06-08 03:00  Change CSS config to avoid using !important
 // @version         2023-06-08 02:00  Dynamic sidebar minWidth
@@ -69,17 +70,42 @@
 
     #sidebarMenu-popup {
       height: 100%;
+      position: relative;
     }
 
     :root[foxinity] #sidebarMenu-popup > menuitem {
       min-width: unset;
       padding: var(--arrowpanel-menuitem-padding);
       border-radius: var(--arrowpanel-menuitem-border-radius);
+      position: relative;
+      align-items: center;
+      justify-content: center;
     }
 
-    :root[foxinity] #sidebarMenu-popup > menuitem:not([disabled]):hover {
-      color: inherit;
+    :root[foxinity] #sidebarMenu-popup > menuitem::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--arrowpanel-menuitem-border-radius);
+    }
+
+    :root[foxinity] #sidebarMenu-popup > menuitem > hbox {
+      z-index: 1;
+    }
+
+    :root[foxinity] #sidebarMenu-popup > menuitem:hover::before {
       background-color: var(--panel-item-hover-bgcolor);
+    }
+
+    #sidebarMenu-popup menuitem.active::before {
+      box-shadow: 0 0 4px rgba(0,0,0,.4);
+      background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent), var(--lwt-selected-tab-background-color, transparent)), linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image, none);
+      background-position: 0 0, 0 0, right top;
+      background-repeat: repeat-x, repeat-x, no-repeat;
+      background-size: auto 100%, auto 100%, auto auto;
     }
 
     :root[foxinity] #sidebarMenu-popup .menu-iconic > .menu-iconic-left,
@@ -90,6 +116,10 @@
 
     :root[foxinity] #sidebarMenu-popup > menuseparator {
       padding-inline: unset !important;
+    }
+
+    :root[foxinity] #sidebarMenu-popup menuitem image {
+      margin-inline-end: unset;
     }
 
     #sidebarMenu-popup #sidebar-collapse image,
@@ -156,14 +186,6 @@
       margin: 0;
       min-width: unset;
       justify-content: center;
-    }
-
-    #sidebarMenu-popup menuitem.active {
-      box-shadow: 0 0 4px rgba(0,0,0,.4);
-      background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent), var(--lwt-selected-tab-background-color, transparent)), linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image, none);
-      background-position: 0 0, 0 0, right top;
-      background-repeat: repeat-x, repeat-x, no-repeat;
-      background-size: auto 100%, auto 100%, auto auto;
     }
 
     :root[foxinity] #sidebarMenu-popup toolbarseparator {
@@ -262,7 +284,6 @@
     }
 
     function toggleActive(commandId) {
-      console.log(commandId);
       Array.from(SidebarUI._switcherPanel.querySelectorAll('menuitem[id]'))
         .forEach(button => {
           button.classList.remove('active');
