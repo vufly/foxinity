@@ -63,14 +63,57 @@
     vtbSplitter.setAttribute('collapse', 'before');
     vtbSplitter.setAttribute('resizebefore', 'sibling');
     vtbSplitter.setAttribute('resizeafter', 'none');
+    vtbSplitter.setAttribute('style', 'order:2;visibility:collapse');
+    document.getElementById('browser').insertBefore(vtbSplitter, ref);
+
+    //scrollbox
+    var arrowScrollbox = gBrowser.tabContainer.arrowScrollbox;
+    var scrollbox = arrowScrollbox.shadowRoot.querySelector('scrollbox');
+    var scrollboxClip = arrowScrollbox.shadowRoot.querySelector('.scrollbox-clip');
+
+    var originalLockTabSizing = gBrowser.tabContainer._lockTabSizing;
 
     function enableVerticalTabs() {
+      vtbTabsToolbar.style.removeProperty('visibility');
+      vtbSplitter.style.removeProperty('visibility');
       vtbTabsToolbar.appendChild(tabsToolbar);
+      tabsToolbar.setAttribute('orient', 'vertical');
+      tabsToolbar.querySelector('.toolbar-items').setAttribute('orient', 'vertical');
+      tabsToolbar.querySelector('.toolbar-items').removeAttribute('align');
+      tabsToolbar.querySelector('#TabsToolbar-customization-target').setAttribute('orient', 'vertical');
+
+      // scrollbar
+      gBrowser.tabContainer.setAttribute('orient', 'vertical');
+      arrowScrollbox.setAttribute('orient', 'vertical');
+      scrollbox.setAttribute('orient', 'vertical');
+      scrollbox.style.setProperty('overflow-y', 'auto', '');
+      scrollbox.style.setProperty('scrollbar-width', 'thin', '');
+      scrollboxClip.style.setProperty('contain', 'unset', '');
+      
+      // ignore lock tab width when closing
+      gBrowser.tabContainer._lockTabSizing = function (aTab, tabWidth){};
 
       vtbEnabled = true;
     }
 
     function disableVerticalTabs() {
+      // ignore lock tab width when closing
+      gBrowser.tabContainer._lockTabSizing = originalLockTabSizing;
+
+      // scrollbar
+      scrollboxClip.style.setProperty('contain', 'inline-size', '');
+      scrollbox.style.removeProperty('scrollbar-width');
+      scrollbox.style.removeProperty('overflow-y');
+      scrollbox.setAttribute('orient', 'horizontal');
+      arrowScrollbox.setAttribute('orient', 'horizontal');
+      gBrowser.tabContainer.setAttribute('orient', 'horizontal');
+
+      tabsToolbar.querySelector('#TabsToolbar-customization-target').removeAttribute('orient');
+      tabsToolbar.querySelector('.toolbar-items').setAttribute('align', 'end');
+      tabsToolbar.querySelector('.toolbar-items').removeAttribute('orient');
+      tabsToolbar.setAttribute('orient', 'horizontal');
+      vtbSplitter.style.setProperty('visibility', 'collapse');
+      vtbTabsToolbar.style.setProperty('visibility', 'collapse');
       titlebar.appendChild(tabsToolbar);
 
       vtbEnabled = false;
