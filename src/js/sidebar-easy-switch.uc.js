@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-01-17 15:00  Fix the SVG fill in reverse position button
 // @version         2023-07-09 02:00  Fix the SVG fill in context menu problem. Must update about:config
 // @version         2023-07-09 01:00  Workaround for menuitem background style in MacOS
 // @version         2023-07-07 18:30  Breaking change in Firefox 116
@@ -155,8 +156,8 @@
     }
 
     #sidebarMenu-popup #sidebar-reverse-position {
-      --webextension-menuitem-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 20 18"><path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" fill="currentColor" fill-opacity="var(--context-fill-opacity)"/></svg>');
-      --webextension-menuitem-image-2x: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 20 18"><path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" fill="currentColor" fill-opacity="var(--context-fill-opacity)"/></svg>');
+      --webextension-menuitem-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 20 18"><path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" fill="context-fill" fill-opacity="context-fill-opacity"/></svg>');
+      --webextension-menuitem-image-2x: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 20 18"><path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" fill="context-fill" fill-opacity="context-fill-opacity"/></svg>');
     }
 
     #sidebarMenu-popup [data-l10n-id="sidebar-menu-close"] {
