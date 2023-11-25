@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-11-26 05:20  Update behaviour when click menuitem
 // @version         2023-11-26 04:45  Add overlay mode
 // @version         2023-11-26 02:00  Fix the sidebar icon background color and tooltip text
 // @version         2023-11-17 15:00  Fix the SVG fill in reverse position button
@@ -227,6 +228,9 @@
     while (SidebarUI._switcherPanel.firstChild) {
       const child = SidebarUI._switcherPanel.firstChild;
       if (child.tagName.toLowerCase() === 'menuitem') {
+        const commandString = child.getAttribute('oncommand');
+        if (commandString?.startsWith('SidebarUI.show'))
+          child.setAttribute('oncommand', commandString.replace('SidebarUI.show', 'SidebarUI.toggle'));
         setTimeout(() => child.tooltipText = child.getAttribute('label'), 500);
       }
       setTimeout(() => {
@@ -295,16 +299,17 @@
     const originalShow = SidebarUI.show;
     SidebarUI.show = function(commandId, triggerNode) {
       toggleActive(commandId);
+      setCollapsedState(false);
       return originalShow.call(this, commandId, triggerNode);
     }
 
     const originalShowInitially = SidebarUI.showInitially;
     SidebarUI.showInitially = function(commandId) {
       toggleActive(commandId);
+      setCollapsedState(false);
       return originalShowInitially.call(this, commandId);
     }
 
-    //Override SidebarUI.toggle;
     SidebarUI.toggle = function(commandID = this.lastOpenedId, triggerNode) {
       if (
         CustomizationHandler.isCustomizing() ||
@@ -325,6 +330,7 @@
   
       if (this.isOpen && commandID == this.currentID) {
         // this.hide(triggerNode);
+        SidebarUI.toggleCollapse();
         return Promise.resolve();
       }
       return this.show(commandID, triggerNode);
@@ -477,7 +483,6 @@
     }
 
     function observe(subject, topic, data) {
-      console.log(topic);
       switch (topic) {
         case 'nsPref:changed':
         case 'nsPref:read':
