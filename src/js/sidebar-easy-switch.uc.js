@@ -2,7 +2,8 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
-// @version         2023-01-17 15:00  Fix the SVG fill in reverse position button
+// @version         2023-11-26 02:00  Fix the sidebar icon background color and tooltip text
+// @version         2023-11-17 15:00  Fix the SVG fill in reverse position button
 // @version         2023-07-09 02:00  Fix the SVG fill in context menu problem. Must update about:config
 // @version         2023-07-09 01:00  Workaround for menuitem background style in MacOS
 // @version         2023-07-07 18:30  Breaking change in Firefox 116
@@ -77,6 +78,7 @@
 
     :root[foxinity] #sidebarMenu-popup > menuitem {
       min-width: unset;
+      margin: 2px 0;
       padding: var(--arrowpanel-menuitem-padding);
       border-radius: var(--arrowpanel-menuitem-border-radius);
       position: relative;
@@ -104,9 +106,8 @@
 
     #sidebarMenu-popup menuitem.active::before {
       box-shadow: 0 0 4px rgba(0,0,0,.4);
-      background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent), var(--lwt-selected-tab-background-color, transparent)), linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image, none);
-      background-position: 0 0, 0 0, right top;
-      background-repeat: repeat-x, repeat-x, no-repeat;
+      background-color: var(--tab-selected-bgcolor);
+      background-repeat: repeat-x;
       background-size: auto 100%, auto 100%, auto auto;
     }
 
@@ -199,11 +200,11 @@
     document.documentElement.setAttribute('foxinity', true);
 
     // Move all children from the original popup to the box
-    const switcherBox = document.createXULElement('box');
+    const switcherBox = document.createXULElement('vbox');
     SidebarUI._header = document.getElementById('sidebar-header');
     while (SidebarUI._switcherPanel.firstChild) {
       const child = SidebarUI._switcherPanel.firstChild;
-      if (child.tagName.toLowerCase() === 'toolbarbutton') {
+      if (child.tagName.toLowerCase() === 'menuitem') {
         setTimeout(() => child.tooltipText = child.getAttribute('label'), 500);
       }
       setTimeout(() => {
@@ -226,7 +227,6 @@
 
     // SidebarUI._switcherPanel.remove();
     switcherBox.setAttribute('id', 'sidebarMenu-popup');
-    switcherBox.setAttribute('orient', 'vertical');
     SidebarUI._header.append(switcherBox);
     SidebarUI._switcherPanel = switcherBox;
     SidebarUI.hideSwitcherPanel = () => {};
@@ -280,6 +280,32 @@
       toggleActive(commandId);
       return originalShowInitially.call(this, commandId);
     }
+
+    //Override SidebarUI.toggle;
+    SidebarUI.toggle = function(commandID = this.lastOpenedId, triggerNode) {
+      if (
+        CustomizationHandler.isCustomizing() ||
+        CustomizationHandler.isExitingCustomizeMode
+      ) {
+        return Promise.resolve();
+      }
+      // First priority for a default value is this.lastOpenedId which is set during show()
+      // and not reset in hide(), unlike currentID. If show() hasn't been called and we don't
+      // have a persisted command either, or the command doesn't exist anymore, then
+      // fallback to a default sidebar.
+      if (!commandID) {
+        commandID = this._box.getAttribute("sidebarcommand");
+      }
+      if (!commandID || !this.sidebars.has(commandID)) {
+        commandID = this.DEFAULT_SIDEBAR_ID;
+      }
+  
+      if (this.isOpen && commandID == this.currentID) {
+        // this.hide(triggerNode);
+        return Promise.resolve();
+      }
+      return this.show(commandID, triggerNode);
+    };
 
     function toggleActive(commandId) {
       Array.from(SidebarUI._switcherPanel.querySelectorAll('menuitem[id]'))
