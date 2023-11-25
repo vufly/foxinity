@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-11-26 04:45  Add overlay mode
 // @version         2023-11-26 02:00  Fix the sidebar icon background color and tooltip text
 // @version         2023-11-17 15:00  Fix the SVG fill in reverse position button
 // @version         2023-07-09 02:00  Fix the SVG fill in context menu problem. Must update about:config
@@ -49,6 +50,27 @@
 
     :root[foxinity] #sidebar-box[sb-collapsed] ~ #sidebar-splitter {
       display: none;
+    }
+
+    #sidebar-box[overlay] {
+      position: absolute;
+      z-index: 1;
+      height: 100%;
+      inset-inline-start: 0;
+    }
+
+    #sidebar-box[overlay][positionend="true"] {
+      inset-inline-start: unset;
+      inset-inline-end: 0;
+    }
+
+    #browser:has(#sidebar-box[overlay]:not([hidden="true"])) {
+      padding-inline-start: var(--collapsed-sb-width);
+    }
+
+    #browser:has(#sidebar-box[overlay]:not([hidden="true"])[positionend="true"]) {
+      padding-inline-start: unset;
+      padding-inline-end: var(--collapsed-sb-width);
     }
 
     #sidebar-box.animating {
@@ -227,6 +249,7 @@
 
     // SidebarUI._switcherPanel.remove();
     switcherBox.setAttribute('id', 'sidebarMenu-popup');
+    switcherBox.setAttribute('context', 'foxinity-sidebar-context-menu');
     SidebarUI._header.append(switcherBox);
     SidebarUI._switcherPanel = switcherBox;
     SidebarUI.hideSwitcherPanel = () => {};
@@ -336,7 +359,7 @@
     SidebarUI._switcherPanel.insertBefore(toolbarbutton, SidebarUI._switcherPanel.firstChild);
 
     SidebarUI.toggleCollapse = function() {
-      SidebarUI._box.getAttribute('sb-collapsed') ? expand() : collapse();
+      SidebarUI._box.hasAttribute('sb-collapsed') ? expand() : collapse();
       SidebarUI._box.classList.add('animating');
       setTimeout(() => SidebarUI._box.classList.remove('animating'), 200);
     }
@@ -358,18 +381,45 @@
     function setWidth(width) {
       SidebarUI._box.setAttribute('width', width);
       
-      if (SidebarUI._box.getAttribute('sb-collapsed'))
+      if (SidebarUI._box.hasAttribute('sb-collapsed'))
         SidebarUI._box.style.width = SidebarUI._header.getBoundingClientRect().width + 'px';
       else
         SidebarUI._box.style.width = width + 'px';
     }
 
-    function setCollapse(collapsed) {
+    function setCollapsedState(collapsed) {
       collapsed ? collapse() : expand();
     }
 
+    function setOverlayState(overlay) {
+      if (overlay) {
+        contextMenu.menuitemOverlay.setAttribute("checked", true);
+        SidebarUI._box.setAttribute("overlay", true);
+      } else {
+        contextMenu.menuitemOverlay.removeAttribute("checked");
+        SidebarUI._box.removeAttribute("overlay");
+      }
+    }
+    SidebarUI.setOverlayState = setOverlayState;
+
+    const contextMenu = document.getElementById('mainPopupSet').appendChild(
+      create(document, "menupopup", {
+        id: "foxinity-sidebar-context-menu",
+      })
+    );
+
+    contextMenu.menuitemOverlay = contextMenu.appendChild(
+      create(document, "menuitem", {
+        id: "foxinity-sidebar-context-overlay",
+        label: 'Overlay Sidebar',
+        type: "checkbox",
+        oncommand: `SidebarUI.setOverlayState(this.hasAttribute("checked"));`,
+      })
+    );
+
     const collapsedPref = "foxinity.sidebar.collapsed";
     const widthPref = "foxinity.sidebar.width";
+    const overlayPref = 'foxinity.sidebar.overlay';
     const prefSvc = Services.prefs;
 
     //On last window close, save sidebar states to pref
@@ -383,8 +433,9 @@
     function uninit() {
       const enumerator = Services.wm.getEnumerator("navigator:browser");
       if (!enumerator.hasMoreElements()) {
-        prefSvc.setBoolPref(collapsedPref, SidebarUI._box.getAttribute('sb-collapsed') || false);
+        prefSvc.setBoolPref(collapsedPref, SidebarUI._box.hasAttribute('sb-collapsed'));
         prefSvc.setIntPref(widthPref, parseInt(SidebarUI._box.getAttribute('width')) || DEFAULT.SIDEBAR_WIDTH);
+        prefSvc.setBoolPref(overlayPref, SidebarUI._box.hasAttribute('overlay'));
       }
     }
 
@@ -393,7 +444,10 @@
     // When new window load, try to read sidebar states from last window
     SessionStore.promiseInitialized.then(() => {
       if (window.closed) return;
-      SidebarUI._box.style.minWidth = SidebarUI._header.getBoundingClientRect().width + 'px';
+      const collapsedWidth = SidebarUI._header.getBoundingClientRect().width + 'px';
+      SidebarUI._box.style.minWidth = collapsedWidth;
+      const browser = document.getElementById('browser');
+      browser.style.setProperty('--collapsed-sb-width', collapsedWidth);
       const sourceWindow = window.opener;
         if (
           sourceWindow &&
@@ -406,20 +460,24 @@
       //Otherwise read from pref
       readPref(widthPref);
       readPref(collapsedPref);
+      readPref(overlayPref);
     });
 
     function _adoptFromWindow(sourceWindow) {
       const sourceBox = sourceWindow?.SidebarUI?._box;
       if (sourceBox) {
-        const collapsed = sourceBox.getAttribute('sb-collapsed') || false;
+        const collapsed = sourceBox.hasAttribute('sb-collapsed');
         const width = sourceBox.getAttribute('width') || DEFAULT.SIDEBAR_WIDTH;
+        const overlay = sourceBox.hasAttribute('overlay');
         setWidth(width);
-        setCollapse(collapsed);
+        setCollapsedState(collapsed);
+        setOverlayState(overlay);
       }
       return true;
     }
 
     function observe(subject, topic, data) {
+      console.log(topic);
       switch (topic) {
         case 'nsPref:changed':
         case 'nsPref:read':
@@ -449,9 +507,32 @@
           setWidth(value);
           break;
         case collapsedPref:
-          setCollapse(value);
+          setCollapsedState(value);
+          break;
+        case overlayPref:
+          setOverlayState(value);
           break;
       }
+    }
+
+    /**
+     * create a DOM node with given parameters
+     * @param {object} aDoc (which document to create the element in)
+     * @param {string} tag (an HTML tag name, like "button" or "p")
+     * @param {object} props (an object containing attribute name/value pairs,
+     *                       e.g. class: ".bookmark-item")
+     * @param {boolean} isHTML (if true, create an HTML element. if omitted or
+     *                         false, create a XUL element. generally avoid HTML
+     *                         when modding the UI, most UI elements are actually
+     *                         XUL elements.)
+     * @returns the created DOM node
+     */
+    function create(aDoc, tag, props, isHTML = false) {
+      let el = isHTML ? aDoc.createElement(tag) : aDoc.createXULElement(tag);
+      for (let prop in props) {
+        el.setAttribute(prop, props[prop]);
+      }
+      return el;
     }
   } 
 })();
