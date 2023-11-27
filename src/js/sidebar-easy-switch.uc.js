@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-11-27 17:00  Fix the height of sidebar in overlay mode
 // @version         2023-11-26 05:20  Update behaviour when click menuitem
 // @version         2023-11-26 04:45  Add overlay mode
 // @version         2023-11-26 02:00  Fix the sidebar icon background color and tooltip text
@@ -47,31 +48,23 @@
 
     :root[foxinity] #sidebar-box {
       max-width: 99vw;
+      position: relative;
     }
 
     :root[foxinity] #sidebar-box[sb-collapsed] ~ #sidebar-splitter {
       display: none;
     }
 
-    #sidebar-box[overlay] {
+    #sidebar-box[overlay] #sidebar {
       position: absolute;
       z-index: 1;
       height: 100%;
-      inset-inline-start: 0;
+      inset-inline-start: var(--collapsed-sb-width);
     }
 
-    #sidebar-box[overlay][positionend="true"] {
+    #sidebar-box[overlay][positionend="true"] #sidebar {
       inset-inline-start: unset;
-      inset-inline-end: 0;
-    }
-
-    #browser:has(#sidebar-box[overlay]:not([hidden="true"])) {
-      padding-inline-start: var(--collapsed-sb-width);
-    }
-
-    #browser:has(#sidebar-box[overlay]:not([hidden="true"])[positionend="true"]) {
-      padding-inline-start: unset;
-      padding-inline-end: var(--collapsed-sb-width);
+      inset-inline-end: var(--collapsed-sb-width);
     }
 
     #sidebar-box.animating {
