@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-12-08 01:15  Fix overlay mode position
 // @version         2023-11-26 05:20  Update behaviour when click menuitem
 // @version         2023-11-26 04:45  Add overlay mode
 // @version         2023-11-26 02:00  Fix the sidebar icon background color and tooltip text
@@ -54,28 +55,21 @@
     }
 
     #sidebar-box[overlay] {
-      position: absolute;
       z-index: 1;
-      height: 100%;
-      inset-inline-start: 0;
     }
 
-    #sidebar-box[overlay][positionend="true"] {
-      inset-inline-start: unset;
-      inset-inline-end: 0;
+    #sidebar-box[overlay]:not([sb-collapsed="true"]):not([positionend="true"]) {
+      margin-inline-end: calc(var(--collapsed-sb-width) - var(--sb-width));
     }
 
-    #browser:has(#sidebar-box[overlay]:not([hidden="true"])) {
-      padding-inline-start: var(--collapsed-sb-width);
-    }
-
-    #browser:has(#sidebar-box[overlay]:not([hidden="true"])[positionend="true"]) {
-      padding-inline-start: unset;
-      padding-inline-end: var(--collapsed-sb-width);
+    #sidebar-box[overlay]:not([sb-collapsed="true"])[positionend="true"] {
+      margin-inline-start: calc(var(--collapsed-sb-width) - var(--sb-width));
     }
 
     #sidebar-box.animating {
-      transition: width 0.2s ease-out;
+      transition-property: width, margin;
+      transition-timing-function: ease-out, ease-out;
+      transition-duration: 0.2s, 0.2s;
     }
 
     :root[foxinity] #sidebar-header {
@@ -399,6 +393,7 @@
 
     function setOverlayState(overlay) {
       if (overlay) {
+        browser.style.setProperty('--sb-width', SidebarUI._box.getAttribute('width') + 'px');
         contextMenu.menuitemOverlay.setAttribute("checked", true);
         SidebarUI._box.setAttribute("overlay", true);
       } else {
