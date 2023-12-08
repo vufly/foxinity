@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2023-12-09 02:00  Overlay sidebar can be resized
 // @version         2023-12-08 01:15  Fix overlay mode position
 // @version         2023-11-26 05:20  Update behaviour when click menuitem
 // @version         2023-11-26 04:45  Add overlay mode
@@ -50,6 +51,10 @@
       max-width: 99vw;
     }
 
+    :root[foxinity] #sidebar-splitter {
+      z-index: 2;
+    }
+
     :root[foxinity] #sidebar-box[sb-collapsed] ~ #sidebar-splitter {
       display: none;
     }
@@ -64,6 +69,22 @@
 
     #sidebar-box[overlay]:not([sb-collapsed="true"])[positionend="true"] {
       margin-inline-start: calc(var(--collapsed-sb-width) - var(--sb-width));
+    }
+
+    #sidebar-box[overlay]:not([sb-collapsed="true"]):not([positionend="true"]) ~ #sidebar-splitter {
+      margin-inline-start: calc(var(--sb-width) - var(--collapsed-sb-width) - 2px);
+    }
+
+    #sidebar-box[overlay]:not([sb-collapsed="true"])[positionend="true"] ~ #sidebar-splitter {
+      margin-inline-end: calc(var(--sb-width) - var(--collapsed-sb-width) - 2px);
+    }
+
+    #browser:has(#sidebar-box[overlay]:not([sb-collapsed="true"]):not([positionend="true"])) #appcontent {
+      margin-inline-start: calc(var(--collapsed-sb-width) - var(--sb-width) - 2px);
+    }
+
+    #browser:has(#sidebar-box[overlay]:not([sb-collapsed="true"])[positionend="true"]) #appcontent {
+      margin-inline-end: calc(var(--collapsed-sb-width) - var(--sb-width) - 2px);
     }
 
     #sidebar-box.animating {
@@ -402,6 +423,22 @@
       }
     }
     SidebarUI.setOverlayState = setOverlayState;
+
+    // var mutationObserver = new MutationObserver((mutations) => {
+    //   mutations.forEach((mutation) => {
+    //     if (mutation.type === 'attributes' && mutation.attributeName === 'width') {
+    //       // browser.style.setProperty('--sb-width', SidebarUI._box.getAttribute('width') + 'px');
+    //       // does not work since splitter rely on something here from the width.
+    //     }
+    //   });
+    // });
+
+    // mutationObserver.observe(SidebarUI._box , { attributes: true });
+
+    SidebarUI._splitter.addEventListener('mouseup', () => {
+      setTimeout(() => browser.style.setProperty('--sb-width', SidebarUI._box.getAttribute('width') + 'px'), 100);
+      // ugly but work.
+    });
 
     const contextMenu = document.getElementById('mainPopupSet').appendChild(
       create(document, "menupopup", {
