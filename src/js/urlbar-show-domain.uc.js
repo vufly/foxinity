@@ -2,6 +2,7 @@
 // @name            URL bar show domain
 // @author          vufly
 // @description     Show only domain in the URL bar input field
+// @version         2024-01-13 01:40  Delay the domain trimming after the valueFormatter.update() because it's async
 // @version         2023-05-31 23:00  Strip out www.
 // @version         2023-05-29 02:30  Initial
 // ==/UserScript==
@@ -29,7 +30,7 @@
     UrlbarInput.prototype._setValue = function (val, allowTrim) {
       originalSetValue.call(this, val, allowTrim);
       if (val)
-        replaceUrlByDomain();
+        this.window.requestAnimationFrame(_ => replaceUrlByDomain());
     }
     gURLBar.inputField.addEventListener('blur', replaceUrlByDomain);
 
