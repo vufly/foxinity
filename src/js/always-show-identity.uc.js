@@ -2,6 +2,7 @@
 // @name            Always show identity value
 // @author          vufly
 // @description     Show indentity label if the identity-icon has a tooltip.
+// @version         2024-02-16 17:10  Show subject organization instead of CA organization.
 // @version         2024-02-16 13:30  Initial
 // ==/UserScript==
 (function () {
@@ -76,13 +77,122 @@
     if(!sss.sheetRegistered(uri, sss.AUTHOR_SHEET))
       sss.loadAndRegisterSheet(uri, sss.AUTHOR_SHEET);
 
-    const originalRefreshIdentityIcons = gIdentityHandler._refreshIdentityIcons;
+    /**
+     * Override the whole gIdentityHandler._refreshIdentityIcons function
+     * Should be in sync with Firefox future updates.
+     * https://searchfox.org/mozilla-central/source/browser/base/content/browser-siteIdentity.js#815
+     */
+
     gIdentityHandler._refreshIdentityIcons = function() {
-      originalRefreshIdentityIcons.call(this);
-      if (!gIdentityHandler._identityIconLabel.value)
-        gIdentityHandler._identityIconLabel.value = gIdentityHandler._identityIconLabel.tooltipText;
-      if (gIdentityHandler._identityIconLabel.value)
-        gIdentityHandler._identityIconLabel.collapsed = false;
-    }
+      let icon_label = "";
+      let tooltip = "";
+  
+      let warnTextOnInsecure =
+        this._insecureConnectionTextEnabled ||
+        (this._insecureConnectionTextPBModeEnabled &&
+          PrivateBrowsingUtils.isWindowPrivate(window));
+  
+      if (this._isSecureInternalUI) {
+        // This is a secure internal Firefox page.
+        this._identityBox.className = "chromeUI";
+        let brandBundle = document.getElementById("bundle_brand");
+        icon_label = brandBundle.getString("brandShorterName");
+      } else if (this._pageExtensionPolicy) {
+        // This is a WebExtension page.
+        this._identityBox.className = "extensionPage";
+        let extensionName = this._pageExtensionPolicy.name;
+        icon_label = gNavigatorBundle.getFormattedString(
+          "identity.extension.label",
+          [extensionName]
+        );
+      } else if (this._uriHasHost && this._isSecureConnection) {
+        // This is a secure connection.
+        this._identityBox.className = "verifiedDomain";
+        if (this._isMixedActiveContentBlocked) {
+          this._identityBox.classList.add("mixedActiveBlocked");
+        }
+        if (!this._isCertUserOverridden) {
+          // It's a normal cert, verifier is the CA Org.
+          tooltip = gNavigatorBundle.getFormattedString(
+            "identity.identified.verifier",
+            [this.getIdentityData().caOrg]
+          );
+          icon_label = this.getIdentityData().subjectOrg;
+        }
+      } else if (this._isBrokenConnection) {
+        // This is a secure connection, but something is wrong.
+        this._identityBox.className = "unknownIdentity";
+  
+        if (this._isMixedActiveContentLoaded) {
+          this._identityBox.classList.add("mixedActiveContent");
+          if (UrlbarPrefs.get("trimHttps") && warnTextOnInsecure) {
+            icon_label = gNavigatorBundle.getString("identity.notSecure.label");
+            this._identityBox.classList.add("notSecureText");
+          }
+        } else if (this._isMixedActiveContentBlocked) {
+          this._identityBox.classList.add(
+            "mixedDisplayContentLoadedActiveBlocked"
+          );
+        } else if (this._isMixedPassiveContentLoaded) {
+          this._identityBox.classList.add("mixedDisplayContent");
+        } else {
+          this._identityBox.classList.add("weakCipher");
+        }
+      } else if (this._isCertErrorPage) {
+        // We show a warning lock icon for certificate errors, and
+        // show the "Not Secure" text.
+        this._identityBox.className = "certErrorPage notSecureText";
+        icon_label = gNavigatorBundle.getString("identity.notSecure.label");
+        tooltip = gNavigatorBundle.getString("identity.notSecure.tooltip");
+      } else if (this._isAboutHttpsOnlyErrorPage) {
+        // We show a not secure lock icon for 'about:httpsonlyerror' page.
+        this._identityBox.className = "httpsOnlyErrorPage";
+      } else if (
+        this._isAboutNetErrorPage ||
+        this._isAboutBlockedPage ||
+        this._isAssociatedIdentity
+      ) {
+        // Network errors, blocked pages, and pages associated
+        // with another page get a more neutral icon
+        this._identityBox.className = "unknownIdentity";
+      } else if (this._isPotentiallyTrustworthy) {
+        // This is a local resource (and shouldn't be marked insecure).
+        this._identityBox.className = "localResource";
+      } else {
+        // This is an insecure connection.
+        let className = "notSecure";
+        this._identityBox.className = className;
+        tooltip = gNavigatorBundle.getString("identity.notSecure.tooltip");
+        icon_label = gNavigatorBundle.getString("identity.notSecure.label");
+        if (warnTextOnInsecure) {
+          this._identityBox.classList.add("notSecureText");
+        }
+      }
+  
+      if (this._isCertUserOverridden) {
+        this._identityBox.classList.add("certUserOverridden");
+        // Cert is trusted because of a security exception, verifier is a special string.
+        tooltip = gNavigatorBundle.getString(
+          "identity.identified.verified_by_you"
+        );
+      }
+  
+      // Push the appropriate strings out to the UI
+      this._identityIcon.setAttribute("tooltiptext", tooltip);
+  
+      if (this._pageExtensionPolicy) {
+        let extensionName = this._pageExtensionPolicy.name;
+        this._identityIcon.setAttribute(
+          "tooltiptext",
+          gNavigatorBundle.getFormattedString("identity.extension.tooltip", [
+            extensionName,
+          ])
+        );
+      }
+  
+      this._identityIconLabel.setAttribute("tooltiptext", tooltip);
+      this._identityIconLabel.setAttribute("value", icon_label);
+      this._identityIconLabel.collapsed = !icon_label;
+    };
   }
 })();
