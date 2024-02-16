@@ -2,6 +2,7 @@
 // @name            Always show identity value
 // @author          vufly
 // @description     Show indentity label if the identity-icon has a tooltip.
+// @version         2024-02-16 17:45  Show subject organization in the tooltip as well.
 // @version         2024-02-16 17:10  Show subject organization instead of CA organization.
 // @version         2024-02-16 13:30  Initial
 // ==/UserScript==
@@ -25,11 +26,11 @@
   function init() {
     var css = `
       /* https */
-      #identity-box.verifiedDomain #identity-icon-box {
+      #identity-box.evCert #identity-icon-box {
         background-color: rgba(50,255,50,0.2)
       }
 
-      #identity-box.verifiedDomain:hover #identity-icon-box {
+      #identity-box.evCert:hover #identity-icon-box {
         background-color: rgba(50,255,50,0.3)
       }
       
@@ -112,12 +113,17 @@
           this._identityBox.classList.add("mixedActiveBlocked");
         }
         if (!this._isCertUserOverridden) {
+          const identityData = this.getIdentityData();
+          const { subjectOrg, country } = identityData;
+          const orgLabel = subjectOrg ? `${subjectOrg} (${country})` : '';
           // It's a normal cert, verifier is the CA Org.
-          tooltip = gNavigatorBundle.getFormattedString(
+          tooltip = (subjectOrg ? (orgLabel + '\n') : '') + gNavigatorBundle.getFormattedString(
             "identity.identified.verifier",
             [this.getIdentityData().caOrg]
           );
-          icon_label = this.getIdentityData().subjectOrg;
+          icon_label = orgLabel;
+          if (subjectOrg)
+            this._identityBox.classList.add('evCert');
         }
       } else if (this._isBrokenConnection) {
         // This is a secure connection, but something is wrong.
