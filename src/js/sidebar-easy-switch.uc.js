@@ -34,12 +34,11 @@
   }
 
   const DEFAULT = {
-    SIDEBAR_WIDTH: 350,
-    SIDEBAR_MIN_WIDTH: 43,
+    SIDEBAR_BOX_WIDTH: 350,
   }
 
   function init() {
-    var css = `
+    const css = `
     :root[foxinity] #sidebar-switcher-target,
     :root[foxinity] #sidebar-throbber,
     :root[foxinity] #sidebar-spacer,
@@ -230,9 +229,9 @@
       border-top: solid 1px color-mix(in srgb, currentColor 25%, transparent);
     }
     `
-    var sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
-    var uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
-    if(!sss.sheetRegistered(uri, sss.AUTHOR_SHEET))
+    const sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
+    const uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
+    if (!sss.sheetRegistered(uri, sss.AUTHOR_SHEET))
       sss.loadAndRegisterSheet(uri, sss.AUTHOR_SHEET);
 
     document.documentElement.setAttribute('foxinity', true);
@@ -271,18 +270,18 @@
     switcherBox.setAttribute('context', 'foxinity-sidebar-context-menu');
     SidebarUI._header.append(switcherBox);
     SidebarUI._switcherPanel = switcherBox;
-    SidebarUI.hideSwitcherPanel = () => {};
+    SidebarUI.hideSwitcherPanel = () => { };
     updateReverseLabel();
 
     //Update label of move sidebar to left/right
     const originalSetPosition = SidebarUI.setPosition;
-    SidebarUI.setPosition = function() {
+    SidebarUI.setPosition = function () {
       originalSetPosition.call(this);
       updateReverseLabel();
     }
 
     const originalReversePosition = SidebarUI.reversePosition;
-    SidebarUI.reversePosition = function() {
+    SidebarUI.reversePosition = function () {
       originalReversePosition.call(this);
       updateReverseLabel();
     }
@@ -303,7 +302,7 @@
 
     //Update tooltip text for extensions
     const originalUpdateShortcut = SidebarUI.updateShortcut;
-    SidebarUI.updateShortcut = function(shortcut) {
+    SidebarUI.updateShortcut = function (shortcut) {
       originalUpdateShortcut.call(this, shortcut);
       const { button } = shortcut;
       if (button)
@@ -312,20 +311,20 @@
 
     //Toggle active state to highlight active sidebar icon button
     const originalShow = SidebarUI.show;
-    SidebarUI.show = function(commandId, triggerNode) {
+    SidebarUI.show = function (commandId, triggerNode) {
       toggleActive(commandId);
       setCollapsedState(false);
       return originalShow.call(this, commandId, triggerNode);
     }
 
     const originalShowInitially = SidebarUI.showInitially;
-    SidebarUI.showInitially = function(commandId) {
+    SidebarUI.showInitially = function (commandId) {
       toggleActive(commandId);
       setCollapsedState(false);
       return originalShowInitially.call(this, commandId);
     }
 
-    SidebarUI.toggle = function(commandID = this.lastOpenedId, triggerNode) {
+    SidebarUI.toggle = function (commandID = this.lastOpenedId, triggerNode) {
       if (
         CustomizationHandler.isCustomizing() ||
         CustomizationHandler.isExitingCustomizeMode
@@ -342,7 +341,7 @@
       if (!commandID || !this.sidebars.has(commandID)) {
         commandID = this.DEFAULT_SIDEBAR_ID;
       }
-  
+
       if (this.isOpen && commandID == this.currentID) {
         // this.hide(triggerNode);
         SidebarUI.toggleCollapse();
@@ -379,29 +378,29 @@
     SidebarUI._switcherPanel.insertBefore(document.createXULElement('toolbarseparator'), SidebarUI._switcherPanel.firstChild);
     SidebarUI._switcherPanel.insertBefore(toolbarbutton, SidebarUI._switcherPanel.firstChild);
 
-    SidebarUI.toggleCollapse = function() {
+    SidebarUI.toggleCollapse = function () {
       SidebarUI._box.hasAttribute('sb-collapsed') ? expand() : collapse();
       SidebarUI._box.classList.add('animating');
       setTimeout(() => SidebarUI._box.classList.remove('animating'), 200);
     }
 
     function collapse() {
-      var width = parseInt(SidebarUI._box.style.width);
+      const width = parseInt(SidebarUI._box.style.width);
       SidebarUI._box.setAttribute('width', width);
-      
+
       SidebarUI._box.style.width = SidebarUI._header.getBoundingClientRect().width + 'px';
       SidebarUI._box.setAttribute('sb-collapsed', 'true');
     }
 
     function expand() {
-      var width = SidebarUI._box.getAttribute('width') || DEFAULT.SIDEBAR_WIDTH;
+      const width = SidebarUI._box.getAttribute('width') || DEFAULT.SIDEBAR_BOX_WIDTH;
       SidebarUI._box.style.width = width + 'px';
       SidebarUI._box.removeAttribute('sb-collapsed');
     }
 
     function setWidth(width) {
       SidebarUI._box.setAttribute('width', width);
-      
+
       if (SidebarUI._box.hasAttribute('sb-collapsed'))
         SidebarUI._box.style.width = SidebarUI._header.getBoundingClientRect().width + 'px';
       else
@@ -423,17 +422,6 @@
       }
     }
     SidebarUI.setOverlayState = setOverlayState;
-
-    // var mutationObserver = new MutationObserver((mutations) => {
-    //   mutations.forEach((mutation) => {
-    //     if (mutation.type === 'attributes' && mutation.attributeName === 'width') {
-    //       // browser.style.setProperty('--sb-width', SidebarUI._box.getAttribute('width') + 'px');
-    //       // does not work since splitter rely on something here from the width.
-    //     }
-    //   });
-    // });
-
-    // mutationObserver.observe(SidebarUI._box , { attributes: true });
 
     SidebarUI._splitter.addEventListener('mouseup', () => {
       setTimeout(() => browser.style.setProperty('--sb-width', SidebarUI._box.getAttribute('width') + 'px'), 100);
@@ -462,7 +450,7 @@
 
     //On last window close, save sidebar states to pref
     const originalOnUnload = gBrowserInit.onUnload;
-    gBrowserInit.onUnload = function() {
+    gBrowserInit.onUnload = function () {
       originalOnUnload.call(this);
       uninit();
     }
@@ -472,7 +460,7 @@
       const enumerator = Services.wm.getEnumerator("navigator:browser");
       if (!enumerator.hasMoreElements()) {
         prefSvc.setBoolPref(collapsedPref, SidebarUI._box.hasAttribute('sb-collapsed'));
-        prefSvc.setIntPref(widthPref, parseInt(SidebarUI._box.getAttribute('width')) || DEFAULT.SIDEBAR_WIDTH);
+        prefSvc.setIntPref(widthPref, parseInt(SidebarUI._box.getAttribute('width')) || DEFAULT.SIDEBAR_BOX_WIDTH);
         prefSvc.setBoolPref(overlayPref, SidebarUI._box.hasAttribute('overlay'));
       }
     }
@@ -487,14 +475,14 @@
       const browser = document.getElementById('browser');
       browser.style.setProperty('--collapsed-sb-width', collapsedWidth);
       const sourceWindow = window.opener;
-        if (
-          sourceWindow &&
-          !sourceWindow.closed &&
-          sourceWindow.location.protocol == "chrome:" &&
-          _adoptFromWindow(sourceWindow)
-        ) {
-          return;
-        }
+      if (
+        sourceWindow &&
+        !sourceWindow.closed &&
+        sourceWindow.location.protocol == "chrome:" &&
+        _adoptFromWindow(sourceWindow)
+      ) {
+        return;
+      }
       //Otherwise read from pref
       readPref(widthPref);
       readPref(collapsedPref);
@@ -505,7 +493,7 @@
       const sourceBox = sourceWindow?.SidebarUI?._box;
       if (sourceBox) {
         const collapsed = sourceBox.hasAttribute('sb-collapsed');
-        const width = sourceBox.getAttribute('width') || DEFAULT.SIDEBAR_WIDTH;
+        const width = sourceBox.getAttribute('width') || DEFAULT.SIDEBAR_BOX_WIDTH;
         const overlay = sourceBox.hasAttribute('overlay');
         setWidth(width);
         setCollapsedState(collapsed);
@@ -540,7 +528,7 @@
       let value = _getPref(sub, pref);
       switch (pref) {
         case widthPref:
-          value = value || DEFAULT.SIDEBAR_WIDTH;
+          value = value || DEFAULT.SIDEBAR_BOX_WIDTH;
           setWidth(value);
           break;
         case collapsedPref:
@@ -571,5 +559,5 @@
       }
       return el;
     }
-  } 
+  }
 })();
