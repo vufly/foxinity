@@ -26,6 +26,11 @@
     SIDEBAR_MIN_WIDTH: 0
   }
 
+  const SIDEBAR_ONE = {
+    all: new Map,
+    list: []
+  }
+
   function init() {
     const css = `
     :root[foxinity] #sidebar-throbber,
@@ -143,6 +148,113 @@
       key: 'sidebarSettingsBtn'
     });
     SidebarUI._header.append(SidebarUI._settingsButton);
+
+    function readSidebarPref(prefString) {
+      SIDEBAR_ONE.all = SidebarUI._sidebars;
+      try {
+        const prefObj = JSON.parse(prefString);
+        const entries = Object.entries(prefObj);
+        entries.forEach(([sidebarId, pref]) => {
+          SIDEBAR_ONE.all.get(sidebarId).width = pref.width;
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function getSidebarPrefString() {
+      const all = {};
+      SidebarUI._sidebars.forEach((sidebar, id) => {
+        all[id] = {
+          width: sidebar.width
+        };
+      });
+      return JSON.stringify({
+        all,
+        list: []
+      });
+    }
+
+    const onePref = 'foxinity.sidebar.one';
+    const prefSvc = Services.prefs;
+
+    //On last window close, save sidebar states to pref
+    const originalOnUnload = gBrowserInit.onUnload;
+    gBrowserInit.onUnload = function () {
+      originalOnUnload.call(this);
+      uninit();
+    }
+    window.onunload = gBrowserInit.onUnload.bind(gBrowserInit);
+
+    function uninit() {
+      const enumerator = Services.wm.getEnumerator("navigator:browser");
+      if (!enumerator.hasMoreElements()) {
+        console.log(getSidebarPrefString());
+        // prefSvc.setBoolPref(collapsedPref, SidebarUI._box.hasAttribute('sb-collapsed'));
+        // prefSvc.setIntPref(widthPref, parseInt(SidebarUI._box.getAttribute('width')) || DEFAULT.SIDEBAR_BOX_WIDTH);
+        // prefSvc.setBoolPref(overlayPref, SidebarUI._box.hasAttribute('overlay'));
+        prefSvc.setStringPref(onePref, getSidebarPrefString());
+
+      }
+    }
+
+
+    const readPref = pref => observe(prefSvc, 'nsPref:read', pref);
+
+    // When new window load, try to read sidebar states from last window
+    SessionStore.promiseInitialized.then(() => {
+      if (window.closed) return;
+      const collapsedWidth = SidebarUI._header.getBoundingClientRect().height + 'px';
+      SidebarUI._box.style.minWidth = collapsedWidth;
+      // const browser = document.getElementById('browser');
+      // browser.style.setProperty('--collapsed-sb-width', collapsedWidth);
+      // const sourceWindow = window.opener;
+      // if (
+      //   sourceWindow &&
+      //   !sourceWindow.closed &&
+      //   sourceWindow.location.protocol == "chrome:" &&
+      //   _adoptFromWindow(sourceWindow)
+      // ) {
+      //   return;
+      // }
+      // //Otherwise read from pref
+      // readPref(widthPref);
+      // readPref(collapsedPref);
+      // readPref(overlayPref);
+      readPref(onePref);
+    });
+
+    function observe(subject, topic, data) {
+      switch (topic) {
+        case 'nsPref:changed':
+        case 'nsPref:read':
+          _onPrefChanged(subject, data);
+          break;
+      }
+    }
+
+    function _getPref(root, pref) {
+      switch (root.getPrefType(pref)) {
+        case root.PREF_BOOL:
+          return root.getBoolPref(pref);
+        case root.PREF_INT:
+          return root.getIntPref(pref);
+        case root.PREF_STRING:
+          return root.getStringPref(pref);
+        default:
+          return null;
+      }
+    }
+
+    function _onPrefChanged(sub, pref) {
+      let value = _getPref(sub, pref);
+      switch (pref) {
+        case onePref:
+          console.log('changePref');
+          readSidebarPref(value);
+          break;
+      }
+    }
   }
 
   var dom = (_ => {
@@ -173,4 +285,6 @@
       }
     });
   })();
+
+
 })();
