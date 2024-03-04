@@ -120,6 +120,25 @@
 
     SidebarUI._header = document.getElementById('sidebar-header');
 
+    while (SidebarUI._switcherPanel.firstChild) {
+      SidebarUI._switcherPanel.children.forEach(child => {
+        setTimeout(() => {
+          if (child.tagName.toLowerCase() === 'menuitem' && child.firstChild?.tagName.toLowerCase() !== 'hbox') {
+            const hbox = dom.hbox(document, false, {
+              class: 'menu-iconic-left',
+              align: 'center',
+              pack: 'center',
+              'aria-hidden': true
+            }, dom.image(document, false, {
+              class: 'menu-iconic-icon'
+            }));
+            child.insertBefore(hbox, child.firstChild);
+            child.classList.add('menuitem-iconic', 'webextension-menuitem');
+          }
+        }, 500);
+      });
+    }
+
     // Create sidebar collapse toolbarbutton
     SidebarUI._collapseButton = dom.toolbarbutton(document, false, {
       id: 'sidebar-collapse',
