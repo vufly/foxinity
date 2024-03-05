@@ -43,6 +43,10 @@
       flex: 0;
     }
 
+    :root[foxinity] #sidebar-splitter {
+      z-index: 2;
+    }
+
     :root[foxinity] #sidebar-box {
       max-width: 99vw;
     }
@@ -110,6 +114,33 @@
       display: none;
     }
 
+    #sidebar-float {
+      position: absolute;
+      width: 50px;
+      height: 100px;
+      background: green;
+      z-index: 1;
+      pointer-event: none;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    #sidebar-box:not([positionend="true"]) #sidebar-float {
+      inset-inline-start: 100%;
+      border-bottom-right-radius: var(--arrowpanel-menuitem-border-radius);
+    }
+
+    #sidebar-box[positionend="true"] #sidebar-float {
+      inset-inline-end: 100%;
+      border-bottom-left-radius: var(--arrowpanel-menuitem-border-radius);
+    }
+
+    #sidebar-box:hover #sidebar-float,
+    #browser:has(#sidebar-splitter:hover) #sidebar-float {
+      opacity: 1;
+      pointer-event: auto;
+    }
+
     `;
     const sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
     const uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
@@ -164,13 +195,18 @@
     });
     SidebarUI._header.append(SidebarUI._settingsButton);
 
+    SidebarUI._floatPanel = dom.vbox(document, false, {
+      id: 'sidebar-float'
+    })
+
+    SidebarUI._box.append(SidebarUI._floatPanel);
+
     function readSidebarPref(prefString) {
       SIDEBAR_ONE.all = SidebarUI._sidebars;
       try {
         const prefObj = JSON.parse(prefString);
         const entries = Object.entries(prefObj.all);
         entries.forEach(([sidebarId, pref]) => {
-          console.log(sidebarId, pref);
           SIDEBAR_ONE.all.get(sidebarId).width = pref.width;
         });
       } catch (error) {
