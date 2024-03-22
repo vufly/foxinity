@@ -35,7 +35,9 @@
     const css = `
     :root[foxinity] #sidebar-throbber,
     :root[foxinity] #sidebar-spacer,
-    :root[foxinity] #sidebar-close {
+    :root[foxinity] #sidebar-close,
+    :root[foxinity] #sidebar-title, 
+    :root[foxinity] #sidebar-switcher-arrow {
       display: none;
     }
 
@@ -45,17 +47,51 @@
 
     :root[foxinity] #sidebar-splitter {
       z-index: 2;
+      margin-top: var(--bookmarks-toolbar-overlapping-browser-height);
     }
 
     :root[foxinity] #sidebar-box {
       max-width: 99vw;
+      flex-direction: row;
+    }
+
+    :root[foxinity] #sidebar-box:not([positionend="true"]) {
+      flex-direction: row-reverse;
     }
 
     :root[foxinity] #sidebar-header {
-      justify-content: space-between;
       background: var(--toolbar-bgcolor);
       padding: 2px 4px;
+      position: absolute;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
     }
+
+    #sidebar-box:not([positionend="true"]) #sidebar-header {
+      inset-inline-start: 100%;
+      border-bottom-right-radius: var(--arrowpanel-menuitem-border-radius);
+    }
+
+    #sidebar-box[positionend="true"] #sidebar-header {
+      inset-inline-end: 100%;
+      border-bottom-left-radius: var(--arrowpanel-menuitem-border-radius);
+    }
+
+    #sidebar-box:hover #sidebar-header,
+    #browser:has(#sidebar-splitter:hover) #sidebar-header,
+    #sidebarMenu-popup:hover #sidebar-header {
+      z-index: 1;
+      opacity: 1;
+    }
+
+    #sidebar-collapse,
+    #sidebar-settings,
+    #sidebar-switcher-target {
+      margin: 0;
+      padding: 6px 6px;
+    }
+
 
     #sidebarMenu-popup #sidebar-switcher-bookmarks {
       --webextension-menuitem-image: url(chrome://browser/skin/bookmark.svg);
@@ -90,13 +126,6 @@
     :root[foxinity] #sidebar-box:not([positionend="true"]) #sidebar-header {
       flex-direction: row-reverse;
     }
-
-    #sidebar-collapse,
-    #sidebar-settings {
-      margin: 0;
-      padding: 6px 6px;
-    }
-
     #sidebar-box #sidebar-collapse > image {
       list-style-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.92,19.92L4,12L11.92,4.08L13.33,5.5L7.83,11H22V13H7.83L13.34,18.5L11.92,19.92M4,12V2H2V22H4V12Z" fill="context-fill" fill-opacity="context-fill-opacity"/></svg>');
     }
@@ -114,33 +143,6 @@
       display: none;
     }
 
-    #sidebar-float {
-      position: absolute;
-      width: 50px;
-      height: 100px;
-      background: green;
-      z-index: 1;
-      pointer-event: none;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-    }
-
-    #sidebar-box:not([positionend="true"]) #sidebar-float {
-      inset-inline-start: 100%;
-      border-bottom-right-radius: var(--arrowpanel-menuitem-border-radius);
-    }
-
-    #sidebar-box[positionend="true"] #sidebar-float {
-      inset-inline-end: 100%;
-      border-bottom-left-radius: var(--arrowpanel-menuitem-border-radius);
-    }
-
-    #sidebar-box:hover #sidebar-float,
-    #browser:has(#sidebar-splitter:hover) #sidebar-float {
-      opacity: 1;
-      pointer-event: auto;
-    }
-
     `;
     const sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
     const uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
@@ -150,6 +152,7 @@
     document.documentElement.setAttribute('foxinity', true);
 
     SidebarUI._header = document.getElementById('sidebar-header');
+    SidebarUI._header.setAttribute('orient', 'vertical');
 
     Array.from(SidebarUI._switcherPanel.children).forEach(child => {
       if (child.tagName.toLowerCase() === 'menuitem' && child.firstChild?.tagName.toLowerCase() !== 'hbox') {
@@ -195,11 +198,11 @@
     });
     SidebarUI._header.append(SidebarUI._settingsButton);
 
-    SidebarUI._floatPanel = dom.vbox(document, false, {
-      id: 'sidebar-float'
-    })
+    // SidebarUI._floatPanel = dom.vbox(document, false, {
+    //   id: 'sidebar-float'
+    // })
 
-    SidebarUI._box.append(SidebarUI._floatPanel);
+    // SidebarUI._box.append(SidebarUI._floatPanel);
 
     function readSidebarPref(prefString) {
       SIDEBAR_ONE.all = SidebarUI._sidebars;
@@ -256,7 +259,7 @@
     // When new window load, try to read sidebar states from last window
     SessionStore.promiseInitialized.then(() => {
       if (window.closed) return;
-      const collapsedWidth = SidebarUI._header.getBoundingClientRect().height + 'px';
+      const collapsedWidth = SidebarUI._header.getBoundingClientRect().width + 'px';
       SidebarUI._box.style.minWidth = collapsedWidth;
       // const browser = document.getElementById('browser');
       // browser.style.setProperty('--collapsed-sb-width', collapsedWidth);
