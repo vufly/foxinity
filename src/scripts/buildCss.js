@@ -10,6 +10,7 @@ var theirFiles = [
   'firefox-csshacks/chrome/combined_favicon_and_tab_close_button.css',
   // 'firefox-csshacks/chrome/tab_close_button_always_on_hover.css',
   'firefox-csshacks/chrome/compact_extensions_panel.css',
+  'firefox-csshacks/chrome/compact_proton.css',
 ].map(file => path.join(__dirname, pathToSubs + file));
 
 var myFiles = [
