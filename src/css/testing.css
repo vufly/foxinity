@@ -1,1 +1,110 @@
+:root {
+  --filter-drop-shadow-icon: drop-shadow(0 0 2px white) drop-shadow(0 0 1px white);
+  --transition-2: 0.2s;
+  --transition-5: 0.5s;
+  --transition-cb: cubic-bezier(.17,.67,.83,.67);
+  --selected-tab-indicator-height: 4px;
+  --tab-min-height: 32px !important;
+  --tab-border-radius: 0px !important;
+  --toolbar-bgcolor: #241b2f !important;
+  --toolbar-field-background-color: rgb(63, 52, 75) !important;
+  --toolbar-field-focus-background-color: #241b2f !important;
 
+  --lwt-sidebar-background-color: #241b2f !important;
+
+  &[uidensity=compact] {
+    --selected-tab-indicator-height: 2px;
+  }
+}
+#urlbar-container{ padding-block: 2px !important; }
+#urlbar {
+  > #urlbar-background {
+    opacity: 0.95;
+  }
+  .urlbar-input-box {
+    background-color: var(--toolbar-field-background-color);
+    border-radius: var(--border-radius-medium);
+    padding: 0 var(--toolbar-start-end-padding);
+  }
+
+  .urlbarView {
+    .urlbarView-body-inner,
+    .search-one-offs {
+      border-top: none !important;
+    }
+
+    .urlbarView-favicon {
+      filter: var(--filter-drop-shadow-icon);
+    }
+
+    .urlbarView-title {
+      text-shadow: 0 0 2px #393a33, 0 0 8px #f39f0575, 0 0 2px #f39f0575;
+    }
+    
+  }
+
+  &:not([open]) {
+    > #urlbar-background {
+      display: none !important;
+    }
+  }
+}
+
+/* some space to drag */
+#nav-bar {
+  padding: 0 20px !important;
+}
+
+.tabbrowser-tab  {
+  /* glow favicon for dark tab */
+  .tab-icon-image {
+    filter: var(--filter-drop-shadow-icon);
+  }
+
+  .tab-background {
+    margin-block: 0 !important;
+
+    .tab-context-line {
+      margin: unset !important;
+      transform: scaleX(.8);
+      transition: transform var(--transition-2) var(--transition-cb);
+    }
+
+    &:is([selected], [multiselected]) {
+      box-shadow: none !important;
+    }
+
+    &::after {
+      height: var(--selected-tab-indicator-height);
+      width: 100%;
+      display: -moz-box;
+      content: "";
+      transition: transform var(--transition-2) var(--transition-cb);
+    }
+
+    &:not([selected], [multiselected])::after {
+      transform: scaleX(0) !important;
+    }
+
+    &[selected]::after {
+      background: var(--panel-separator-zap-gradient);
+      transform: scaleX(1);
+    }
+  }
+
+  &[selected] {
+    font-weight: 700;
+  }
+
+  &[usercontextid]:hover,
+  &[usercontextid][selected] {
+    .tab-context-line {
+      transform: unset;
+    }
+  }
+}
+
+/* Hide tab bar during sidebery*/
+body:has(#browser > vbox:not([hidden="true"])[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]) #TabsToolbar {
+  visibility: collapse !important;
+}
