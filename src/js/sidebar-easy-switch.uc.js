@@ -2,6 +2,7 @@
 // @name            Sidebar Easy Switch
 // @author          vufly
 // @description     Bring out sidebar switcher as a panel.
+// @version         2024-05-17 14:15  Rename all SidebarUI to SidebarController for Firefox 127
 // @version         2023-12-09 02:00  Overlay sidebar can be resized
 // @version         2023-12-08 01:15  Fix overlay mode position
 // @version         2023-11-26 05:20  Update behaviour when click menuitem
@@ -238,13 +239,13 @@
 
     // Move all children from the original popup to the box
     const switcherBox = document.createXULElement('vbox');
-    SidebarUI._header = document.getElementById('sidebar-header');
-    while (SidebarUI._switcherPanel.firstChild) {
-      const child = SidebarUI._switcherPanel.firstChild;
+    SidebarController._header = document.getElementById('sidebar-header');
+    while (SidebarController._switcherPanel.firstChild) {
+      const child = SidebarController._switcherPanel.firstChild;
       if (child.tagName.toLowerCase() === 'menuitem') {
         const commandString = child.getAttribute('oncommand');
-        if (commandString?.startsWith('SidebarUI.show'))
-          child.setAttribute('oncommand', commandString.replace('SidebarUI.show', 'SidebarUI.toggle'));
+        if (commandString?.startsWith('SidebarController.show'))
+          child.setAttribute('oncommand', commandString.replace('SidebarController.show', 'SidebarController.toggle'));
         setTimeout(() => child.tooltipText = child.getAttribute('label'), 500);
       }
       setTimeout(() => {
@@ -265,44 +266,44 @@
       switcherBox.append(child);
     }
 
-    // SidebarUI._switcherPanel.remove();
+    // SidebarController._switcherPanel.remove();
     switcherBox.setAttribute('id', 'sidebarMenu-popup');
     switcherBox.setAttribute('context', 'foxinity-sidebar-context-menu');
-    SidebarUI._header.append(switcherBox);
-    SidebarUI._switcherPanel = switcherBox;
-    SidebarUI.hideSwitcherPanel = () => { };
+    SidebarController._header.append(switcherBox);
+    SidebarController._switcherPanel = switcherBox;
+    SidebarController.hideSwitcherPanel = () => { };
     updateReverseLabel();
 
     //Update label of move sidebar to left/right
-    const originalSetPosition = SidebarUI.setPosition;
-    SidebarUI.setPosition = function () {
+    const originalSetPosition = SidebarController.setPosition;
+    SidebarController.setPosition = function () {
       originalSetPosition.call(this);
       updateReverseLabel();
     }
 
-    const originalReversePosition = SidebarUI.reversePosition;
-    SidebarUI.reversePosition = function () {
+    const originalReversePosition = SidebarController.reversePosition;
+    SidebarController.reversePosition = function () {
       originalReversePosition.call(this);
       updateReverseLabel();
     }
 
     function updateReverseLabel() {
       const label =
-        SidebarUI._positionStart == RTL_UI
+        SidebarController._positionStart == RTL_UI
           ? gNavigatorBundle.getString('sidebar.moveToLeft')
           : gNavigatorBundle.getString('sidebar.moveToRight');
-      SidebarUI._reversePositionButton.setAttribute('label', label);
-      SidebarUI._reversePositionButton.tooltipText = label;
+      SidebarController._reversePositionButton.setAttribute('label', label);
+      SidebarController._reversePositionButton.tooltipText = label;
     }
 
     //Add spring space so reverse button will be in bottom
-    const reverseButton = SidebarUI._switcherPanel.querySelector('#sidebar-reverse-position');
+    const reverseButton = SidebarController._switcherPanel.querySelector('#sidebar-reverse-position');
     const spring = document.createXULElement('toolbarspring');
-    SidebarUI._switcherPanel.insertBefore(spring, reverseButton);
+    SidebarController._switcherPanel.insertBefore(spring, reverseButton);
 
     //Update tooltip text for extensions
-    const originalUpdateShortcut = SidebarUI.updateShortcut;
-    SidebarUI.updateShortcut = function (shortcut) {
+    const originalUpdateShortcut = SidebarController.updateShortcut;
+    SidebarController.updateShortcut = function (shortcut) {
       originalUpdateShortcut.call(this, shortcut);
       const { button } = shortcut;
       if (button)
@@ -310,21 +311,21 @@
     }
 
     //Toggle active state to highlight active sidebar icon button
-    const originalShow = SidebarUI.show;
-    SidebarUI.show = function (commandId, triggerNode) {
+    const originalShow = SidebarController.show;
+    SidebarController.show = function (commandId, triggerNode) {
       toggleActive(commandId);
       setCollapsedState(false);
       return originalShow.call(this, commandId, triggerNode);
     }
 
-    const originalShowInitially = SidebarUI.showInitially;
-    SidebarUI.showInitially = function (commandId) {
+    const originalShowInitially = SidebarController.showInitially;
+    SidebarController.showInitially = function (commandId) {
       toggleActive(commandId);
       setCollapsedState(false);
       return originalShowInitially.call(this, commandId);
     }
 
-    SidebarUI.toggle = function (commandID = this.lastOpenedId, triggerNode) {
+    SidebarController.toggle = function (commandID = this.lastOpenedId, triggerNode) {
       if (
         CustomizationHandler.isCustomizing() ||
         CustomizationHandler.isExitingCustomizeMode
@@ -344,14 +345,14 @@
 
       if (this.isOpen && commandID == this.currentID) {
         // this.hide(triggerNode);
-        SidebarUI.toggleCollapse();
+        SidebarController.toggleCollapse();
         return Promise.resolve();
       }
       return this.show(commandID, triggerNode);
     };
 
     function toggleActive(commandId) {
-      Array.from(SidebarUI._switcherPanel.querySelectorAll('menuitem[id]'))
+      Array.from(SidebarController._switcherPanel.querySelectorAll('menuitem[id]'))
         .forEach(button => {
           button.classList.remove('active');
           if (button.getAttribute('oncommand')?.includes(commandId))
@@ -359,52 +360,52 @@
         });
     }
 
-    SidebarUI._header.addEventListener('dblclick', () => {
-      SidebarUI.toggleCollapse();
+    SidebarController._header.addEventListener('dblclick', () => {
+      SidebarController.toggleCollapse();
     });
 
     //Change the direction of items
-    SidebarUI._box.setAttribute('orient', 'horizontal');
-    SidebarUI._header.setAttribute('orient', 'vertical');
+    SidebarController._box.setAttribute('orient', 'horizontal');
+    SidebarController._header.setAttribute('orient', 'vertical');
 
     //Create collapse toolbarbutton
     const toolbarbutton = document.createXULElement('toolbarbutton');
     toolbarbutton.setAttribute('id', 'sidebar-collapse');
     toolbarbutton.setAttribute('label', 'Collapse');
-    toolbarbutton.setAttribute('oncommand', 'SidebarUI.toggleCollapse();');
+    toolbarbutton.setAttribute('oncommand', 'SidebarController.toggleCollapse();');
     toolbarbutton.classList.add('subviewbutton', 'subviewbutton-iconic');
     toolbarbutton.setAttribute('key', 'sidebarCollapseBtn');
-    SidebarUI._collapseButton = toolbarbutton;
-    SidebarUI._switcherPanel.insertBefore(document.createXULElement('toolbarseparator'), SidebarUI._switcherPanel.firstChild);
-    SidebarUI._switcherPanel.insertBefore(toolbarbutton, SidebarUI._switcherPanel.firstChild);
+    SidebarController._collapseButton = toolbarbutton;
+    SidebarController._switcherPanel.insertBefore(document.createXULElement('toolbarseparator'), SidebarController._switcherPanel.firstChild);
+    SidebarController._switcherPanel.insertBefore(toolbarbutton, SidebarController._switcherPanel.firstChild);
 
-    SidebarUI.toggleCollapse = function () {
-      SidebarUI._box.hasAttribute('sb-collapsed') ? expand() : collapse();
-      SidebarUI._box.classList.add('animating');
-      setTimeout(() => SidebarUI._box.classList.remove('animating'), 200);
+    SidebarController.toggleCollapse = function () {
+      SidebarController._box.hasAttribute('sb-collapsed') ? expand() : collapse();
+      SidebarController._box.classList.add('animating');
+      setTimeout(() => SidebarController._box.classList.remove('animating'), 200);
     }
 
     function collapse() {
-      const width = parseInt(SidebarUI._box.style.width);
-      SidebarUI._box.setAttribute('width', width);
+      const width = parseInt(SidebarController._box.style.width);
+      SidebarController._box.setAttribute('width', width);
 
-      SidebarUI._box.style.width = SidebarUI._header.getBoundingClientRect().width + 'px';
-      SidebarUI._box.setAttribute('sb-collapsed', 'true');
+      SidebarController._box.style.width = SidebarController._header.getBoundingClientRect().width + 'px';
+      SidebarController._box.setAttribute('sb-collapsed', 'true');
     }
 
     function expand() {
-      const width = SidebarUI._box.getAttribute('width') || DEFAULT.SIDEBAR_BOX_WIDTH;
-      SidebarUI._box.style.width = width + 'px';
-      SidebarUI._box.removeAttribute('sb-collapsed');
+      const width = SidebarController._box.getAttribute('width') || DEFAULT.SIDEBAR_BOX_WIDTH;
+      SidebarController._box.style.width = width + 'px';
+      SidebarController._box.removeAttribute('sb-collapsed');
     }
 
     function setWidth(width) {
-      SidebarUI._box.setAttribute('width', width);
+      SidebarController._box.setAttribute('width', width);
 
-      if (SidebarUI._box.hasAttribute('sb-collapsed'))
-        SidebarUI._box.style.width = SidebarUI._header.getBoundingClientRect().width + 'px';
+      if (SidebarController._box.hasAttribute('sb-collapsed'))
+        SidebarController._box.style.width = SidebarController._header.getBoundingClientRect().width + 'px';
       else
-        SidebarUI._box.style.width = width + 'px';
+        SidebarController._box.style.width = width + 'px';
     }
 
     function setCollapsedState(collapsed) {
@@ -413,18 +414,18 @@
 
     function setOverlayState(overlay) {
       if (overlay) {
-        browser.style.setProperty('--sb-width', SidebarUI._box.getAttribute('width') + 'px');
+        browser.style.setProperty('--sb-width', SidebarController._box.getAttribute('width') + 'px');
         contextMenu.menuitemOverlay.setAttribute("checked", true);
-        SidebarUI._box.setAttribute("overlay", true);
+        SidebarController._box.setAttribute("overlay", true);
       } else {
         contextMenu.menuitemOverlay.removeAttribute("checked");
-        SidebarUI._box.removeAttribute("overlay");
+        SidebarController._box.removeAttribute("overlay");
       }
     }
-    SidebarUI.setOverlayState = setOverlayState;
+    SidebarController.setOverlayState = setOverlayState;
 
-    SidebarUI._splitter.addEventListener('mouseup', () => {
-      setTimeout(() => browser.style.setProperty('--sb-width', SidebarUI._box.getAttribute('width') + 'px'), 100);
+    SidebarController._splitter.addEventListener('mouseup', () => {
+      setTimeout(() => browser.style.setProperty('--sb-width', SidebarController._box.getAttribute('width') + 'px'), 100);
       // ugly but work.
     });
 
@@ -439,7 +440,7 @@
         id: "foxinity-sidebar-context-overlay",
         label: 'Overlay Sidebar',
         type: "checkbox",
-        oncommand: `SidebarUI.setOverlayState(this.hasAttribute("checked"));`,
+        oncommand: `SidebarController.setOverlayState(this.hasAttribute("checked"));`,
       })
     );
 
@@ -459,9 +460,9 @@
     function uninit() {
       const enumerator = Services.wm.getEnumerator("navigator:browser");
       if (!enumerator.hasMoreElements()) {
-        prefSvc.setBoolPref(collapsedPref, SidebarUI._box.hasAttribute('sb-collapsed'));
-        prefSvc.setIntPref(widthPref, parseInt(SidebarUI._box.getAttribute('width')) || DEFAULT.SIDEBAR_BOX_WIDTH);
-        prefSvc.setBoolPref(overlayPref, SidebarUI._box.hasAttribute('overlay'));
+        prefSvc.setBoolPref(collapsedPref, SidebarController._box.hasAttribute('sb-collapsed'));
+        prefSvc.setIntPref(widthPref, parseInt(SidebarController._box.getAttribute('width')) || DEFAULT.SIDEBAR_BOX_WIDTH);
+        prefSvc.setBoolPref(overlayPref, SidebarController._box.hasAttribute('overlay'));
       }
     }
 
@@ -470,8 +471,8 @@
     // When new window load, try to read sidebar states from last window
     SessionStore.promiseInitialized.then(() => {
       if (window.closed) return;
-      const collapsedWidth = SidebarUI._header.getBoundingClientRect().width + 'px';
-      SidebarUI._box.style.minWidth = collapsedWidth;
+      const collapsedWidth = SidebarController._header.getBoundingClientRect().width + 'px';
+      SidebarController._box.style.minWidth = collapsedWidth;
       const browser = document.getElementById('browser');
       browser.style.setProperty('--collapsed-sb-width', collapsedWidth);
       const sourceWindow = window.opener;
@@ -490,7 +491,7 @@
     });
 
     function _adoptFromWindow(sourceWindow) {
-      const sourceBox = sourceWindow?.SidebarUI?._box;
+      const sourceBox = sourceWindow?.SidebarController?._box;
       if (sourceBox) {
         const collapsed = sourceBox.hasAttribute('sb-collapsed');
         const width = sourceBox.getAttribute('width') || DEFAULT.SIDEBAR_BOX_WIDTH;
