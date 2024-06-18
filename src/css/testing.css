@@ -6,9 +6,11 @@
   --selected-tab-indicator-height: 4px;
   --tab-min-height: 32px !important;
   --tab-border-radius: 0px !important;
+  --arrowpanel-menuitem-padding-inline: 5px !important;
   --toolbar-bgcolor: #241b2f !important;
   --toolbar-field-background-color: rgb(63, 52, 75) !important;
   --toolbar-field-focus-background-color: #241b2f !important;
+  --tab-selected-bgcolor: rgb(63, 52, 75) !important;
 
   --lwt-sidebar-background-color: #241b2f !important;
 
