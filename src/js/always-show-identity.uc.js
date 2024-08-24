@@ -2,6 +2,7 @@
 // @name            Always show identity value
 // @author          vufly
 // @description     Show indentity label if the identity-icon has a tooltip.
+// @version         2024-08-25 02:20  Hide subject organization on the label, just keep it in tooltip.
 // @version         2024-02-16 17:45  Show subject organization in the tooltip as well.
 // @version         2024-02-16 17:10  Show subject organization instead of CA organization.
 // @version         2024-02-16 13:30  Initial
@@ -121,7 +122,7 @@
             "identity.identified.verifier",
             [this.getIdentityData().caOrg]
           );
-          icon_label = orgLabel;
+          // icon_label = orgLabel;
           if (subjectOrg)
             this._identityBox.classList.add('evCert');
         }
