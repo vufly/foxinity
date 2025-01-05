@@ -13,3 +13,6 @@
 [submodule "src/submodules/Firefox-Mod-Blur"]
 	path = src/submodules/Firefox-Mod-Blur
 	url = https://github.com/datguypiko/Firefox-Mod-Blur.git
+[submodule "src/submodules/firefox-second-sidebar"]
+	path = src/submodules/firefox-second-sidebar
+	url = https://github.com/aminought/firefox-second-sidebar
