@@ -6,7 +6,7 @@ const pathToMine = '../css/';
 
 var theirFiles = [
   'firefox-csshacks/chrome/urlbar_centered_text.css',
-  'firefox-csshacks/chrome/tabs_on_bottom.css',
+  'firefox-csshacks/chrome/tabs_on_bottom_v2.css',
   'firefox-csshacks/chrome/combined_favicon_and_tab_close_button.css',
   // 'firefox-csshacks/chrome/tab_close_button_always_on_hover.css',
   'firefox-csshacks/chrome/compact_extensions_panel.css',
