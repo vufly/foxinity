@@ -1,10 +1,41 @@
-/*
-Override css display value of window control from https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/tabs_on_bottom.css to hide it totally.
-*/
-#toolbar-menubar[autohide="true"] > .titlebar-buttonbox-container,
-#TabsToolbar > .titlebar-buttonbox-container {
-  display: none !important;;
-}
-:root:not([chromehidden~="menubar"], [sizemode="fullscreen"]) #toolbar-menubar:not([autohide="true"]) + #TabsToolbar > .titlebar-buttonbox-container {
-  display: none !important;
+@media not (-moz-bool-pref: "sidebar.verticalTabs"),
+not -moz-pref("sidebar.verticalTabs") {
+  #TabsToolbar:not([customizing]) {
+    visibility: unset;
+  }
+
+  :root[sizemode="fullscreen"] #nav-bar>.titlebar-buttonbox-container {
+    display: none !important;
+  }
+
+  :root:is([tabsintitlebar], [customtitlebar]) #toolbar-menubar:not([autohide="false"])~#nav-bar {
+    >.titlebar-buttonbox-container {
+      display: none !important;
+    }
+
+    :root[sizemode="normal"] & {
+      >.titlebar-spacer {
+        display: none !important;
+      }
+    }
+
+    :root[sizemode="maximized"] & {
+      >.titlebar-spacer[type="post-tabs"] {
+        display: none !important;
+      }
+
+      @media (-moz-bool-pref: "userchrome.force-window-controls-on-left.enabled"),
+      -moz-pref("userchrome.force-window-controls-on-left.enabled"),
+      (-moz-gtk-csd-reversed-placement),
+      (-moz-platform: macos) {
+        >.titlebar-spacer[type="post-tabs"] {
+          display: none !important;
+        }
+
+        >.titlebar-spacer[type="pre-tabs"] {
+          display: none !important;
+        }
+      }
+    }
+  }
 }
