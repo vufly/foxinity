@@ -107,6 +107,6 @@
 }
 
 /* Hide tab bar during sidebery*/
-body:has(#browser > #sidebar-wrapper > #sidebar-box:not([hidden="true"])[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]) #TabsToolbar {
+body:has(#browser > #sidebar-box:not([hidden="true"])[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]) #TabsToolbar {
   visibility: collapse !important;
 }
