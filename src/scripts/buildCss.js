@@ -16,7 +16,8 @@ var theirFiles = [
 var myFiles = [
   'hide-window-control.css',
   'tabs-on-bottom-patches.css',
-  'testing.css'
+  // 'testing.css',
+  'testing2.css'
 ].map(file => path.join(__dirname, pathToMine + file));
 
 const outputFilePath = path.join(__dirname, '../../profile/chrome/userChrome.css');
