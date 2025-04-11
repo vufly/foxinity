@@ -1,0 +1,28 @@
+/* Make the revamp sidevar more compact and have unified look overall */
+.actions-list {
+  > moz-button:not(.tools-overflow) {
+    --button-outer-padding-inline: var(--space-small) !important;
+
+    &:first-of-type {
+      --button-outer-padding-block-start: var(--space-xxsmall) !important;
+    }
+
+    &:last-of-type {
+      --button-outer-padding-block-end: var(--space-xxsmall) !important;
+    }
+  }
+}
+#sidebar-box {
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("sidebar.revamp") {
+    padding-block-end: 1px !important;
+  }
+}
+#tabbrowser-tabbox {
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("sidebar.revamp") {
+    border-radius: var(--border-radius-medium) !important;
+    overflow: clip !important;
+    outline: 0.5px solid -moz-sidebarborder !important;
+  }
+}

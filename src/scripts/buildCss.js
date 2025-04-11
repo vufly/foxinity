@@ -16,6 +16,7 @@ var theirFiles = [
 var myFiles = [
   'hide-window-control.css',
   'tabs-on-bottom-patches.css',
+  'compact-sidebar-revamp.css',
   // 'testing.css',
   'testing2.css'
 ].map(file => path.join(__dirname, pathToMine + file));
