@@ -134,3 +134,6 @@ dist
 
 # Firefox profile
 profile
+
+# Local reference repositories
+/references/
