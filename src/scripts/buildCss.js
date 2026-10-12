@@ -25,15 +25,23 @@ var myFiles = [
 
 const outputFilePath = path.join(__dirname, '../../profile/chrome/userChrome.css');
 const outputDirectory = path.dirname(outputFilePath);
-// Create the output directory if it doesn't exist
-if (!fs.existsSync(outputDirectory)) {
-  fs.mkdirSync(outputDirectory, { recursive: true });
+function buildCss() {
+  // Create the output directory if it doesn't exist
+  if (!fs.existsSync(outputDirectory)) {
+    fs.mkdirSync(outputDirectory, { recursive: true });
+  }
+
+  // Read the contents of all CSS files
+  const concatenatedContent = [...theirFiles, ...myFiles].map(file => fs.readFileSync(file, 'utf8')).join('\n');
+
+  // Write the concatenated content to the output file
+  fs.writeFileSync(outputFilePath, concatenatedContent, { flag: 'w' });
+
+  console.log('CSS files concatenated successfully.');
 }
 
-// Read the contents of all CSS files
-const concatenatedContent = [...theirFiles, ...myFiles].map(file => fs.readFileSync(file, 'utf8')).join('\n');
+if (require.main === module) {
+  buildCss();
+}
 
-// Write the concatenated content to the output file
-fs.writeFileSync(outputFilePath, concatenatedContent, { flag: 'w' });
-
-console.log('CSS files concatenated successfully.');
+module.exports = buildCss;
