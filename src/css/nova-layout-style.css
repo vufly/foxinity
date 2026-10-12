@@ -1,0 +1,6 @@
+/*@media -moz-pref("browser.nova.enabled") {
+  #sidebar-box {
+    border-radius: var(--sidebar-box-start-start-radius);
+    overflow: hidden;
+  }
+}*/

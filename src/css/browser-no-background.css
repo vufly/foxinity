@@ -1,0 +1,5 @@
+@media (not -moz-pref("sidebar.verticalTabs")) {
+    #browser {
+        background: none !important;
+    }
+}
