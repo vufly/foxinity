@@ -438,6 +438,7 @@ function parseCliArgs(args) {
     useFzf: false,
     customDir: null,
     customIni: null,
+    excludeLocal: false,
     help: false
   };
 
@@ -452,6 +453,8 @@ function parseCliArgs(args) {
       options.source = 'linux';
     } else if (arg === '--local') {
       options.source = 'local';
+    } else if (arg === '--no-local' || arg === '--exclude-local') {
+      options.excludeLocal = true;
     } else if (arg === '-a' || arg === '--all') {
       options.source = 'all';
     } else if (arg === '-W' || arg === '--win' || arg === '--windows-path') {
@@ -531,7 +534,11 @@ Examples:
 }
 
 async function pickProfile(options = {}) {
-  let profiles = getProfiles(options);
+  let profiles = options.profiles ? [...options.profiles] : getProfiles(options);
+
+  if (options.excludeLocal) {
+    profiles = profiles.filter(p => p.source !== 'local');
+  }
 
   if (options.filterName) {
     const q = options.filterName.toLowerCase();
@@ -573,7 +580,10 @@ async function main() {
     process.exit(0);
   }
 
-  const profiles = getProfiles(options);
+  let profiles = getProfiles(options);
+  if (options.excludeLocal) {
+    profiles = profiles.filter(p => p.source !== 'local');
+  }
 
   if (options.listOnly) {
     if (options.json) {

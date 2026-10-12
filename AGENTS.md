@@ -24,7 +24,10 @@ Foxinity customizes Firefox Developer Edition. Target the installed Developer Ed
 ## Build and verification
 
 - Run commands from the repository root.
+- Build the full local development profile with `node src/scripts/buildProfile.js` (runs `copyFxAutoconfig.js`, `copySecondSidebar.js`, and `buildCss.js`).
 - Build CSS with `node src/scripts/buildCss.js`; its referenced submodule files must be available.
+- Deploy local profile to an installed browser profile with `node src/scripts/copyProfile.js` (or `deployProfile.js`), which integrates with `node src/scripts/pickProfile.js`.
+- Query or select target Firefox profiles with `node src/scripts/pickProfile.js` (`-w` for Windows host profiles in WSL, `-l` for Linux, `-d` for default).
 - `node src/scripts/buildJs.js` deploys deprecated scripts. Do not run it as the default development build.
 - Launch the development profile with `firefox -no-remote -profile "$PWD/profile"`, using the Developer Edition executable if named differently. A compatible userChromeJS loader must already be configured for JS testing.
 - Verify browser UI with Browser Toolbox and errors with Browser Console. For JS changes, check startup, a second window, repeated interactions, and cleanup; check restart persistence when relevant.
